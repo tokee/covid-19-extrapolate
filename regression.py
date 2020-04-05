@@ -4,9 +4,14 @@
 #
 # Usage: Run the script ./get_data.sh first, then this script
 
+# TODO: Make downloading of data part of this script
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
+
+# TODO: Make this an option
+country = 'Denmark'
 
 # Load data [date deaths cumulative_deaths]
 def load(data_path):
@@ -24,12 +29,14 @@ def load(data_path):
 
     return np.array(days), np.array(deathss), last_date
 
-x, y, last_date = load("denmark-deaths.dat")
+#x, y, last_date = load("Denmark-deaths.dat")
+x, y, last_date = load(country + "-deaths.dat")
 
 # Fit the data to different formulas
 # https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html
 
 # Control from where we extrapolate and how far ahead we're looking
+# TODO: Make these options
 skip_days = 0
 guess_days = 14
 # Used by pow_last2 to extrapolate from the last x days
@@ -88,22 +95,23 @@ label_pow2 = label('{}+{}*{}ˣ, spredning: {}', popt_pow2, perr_pow2)
 label_pow_last2 = label('{}+{}*{}ˣ, spredning: {}', popt_pow_last2, perr_pow_last2)
 
 plt.figure(dpi=180)
-plt.title("Dødsfald med COVID-19-infektion, Danmark " + last_date)
+plt.title("Dødsfald med COVID-19-infektion, " + country + " " + last_date)
 
 axes = plt.gca()
 axes.set_ylim([0, max(max(y), func_pow(max(x)+guess_days, *popt_pow))])
 axes.set_xlim([0, max(x)+guess_days])
 
 plt.plot(x, y, 'ko', label="Kumulative dødsfald")
-plt.plot(plot_x, func_lin(plot_x, *popt_lin), 'r-', label=label_lin, color='blue')
+#plt.plot(plot_x, func_lin(plot_x, *popt_lin), 'r-', label=label_lin, color='blue')
 #plt.plot(plot_x, func_exp(plot_x, *popt_exp), 'r-', label=label_exp, color='orange')
 #plt.plot(plot_x, func_deg2(plot_x, *popt_deg2), 'r-', label=label_deg2, color='orange')
 plt.plot(plot_x, func_pow(plot_x, *popt_pow), 'r-', label=label_pow, color='green')
-plt.plot(plot_x, func_pow2(plot_x, *popt_pow2), 'r-', label=label_pow2, color='magenta')
+#plt.plot(plot_x, func_pow2(plot_x, *popt_pow2), 'r-', label=label_pow2, color='magenta')
 #plt.plot(plot_x_last, func_pow_last2(plot_x_last, *popt_pow_last2), 'r-', label=label_pow_last2, color='orange')
 
 plt.legend()
-plt.figtext(0.99, 0.01, 'Datakilde: https://www.sst.dk/da/corona/tal-og-overvaagning', horizontalalignment='right')
+# https://www.sst.dk/da/corona/tal-og-overvaagning
+plt.figtext(0.99, 0.01, 'Datakilde: https://github.com/CSSEGISandData/COVID-19', horizontalalignment='right')
 #plt.show()
 
-plt.savefig('covid-19-deaths-da-' + last_date + '.png')
+plt.savefig('covid-19-deaths-' + country + '-' + last_date + '.png')
